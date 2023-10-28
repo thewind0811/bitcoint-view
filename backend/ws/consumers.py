@@ -13,10 +13,10 @@ from rest_framework.exceptions import PermissionDenied, APIException, MethodNotA
 from rest_framework.permissions import BasePermission as DRFBasePermission
 from rest_framework.response import Response
 
-from backend.ws.exceptions import ActionMissingException
-from backend.ws.permissions import WrappedDRFPermission
-from backend.ws.scope_utils import ensure_async, request_from_scope
-from backend.ws.settings import api_settings
+from ws.exceptions import ActionMissingException
+from ws.permissions import WrappedDRFPermission
+from ws.scope_utils import ensure_async, request_from_scope
+from ws.settings import api_settings
 
 
 import logging
@@ -34,7 +34,7 @@ class APIConsumerMetaclass(type):
             is_action = getattr(attr, "action", False)
             if is_action:
                 kwargs = getattr(attr, "kwargs", {})
-                name = kwargs.pop("name", method_name)
+                name = kwargs.get("name", method_name)
                 cls.available_actions[name] = method_name
         return cls
 
@@ -63,7 +63,9 @@ class AsyncAPIConsumer(AsyncJsonWebsocketConsumer, metaclass=APIConsumerMetaclas
     async def websocket_connect(self, message):
         try:
             for permission in await self.get_permissions(action="connect"):
-                if not await ensure_async(permission.can_connect)(scope=self.scope, consumer=self, message=message):
+                if not await ensure_async(permission.can_connect)(
+                    scope=self.scope, consumer=self, message=message
+                ):
                     raise PermissionDenied()
             await super().websocket_connect(message)
         except PermissionDenied:
@@ -110,11 +112,16 @@ class AsyncAPIConsumer(AsyncJsonWebsocketConsumer, metaclass=APIConsumerMetaclas
             ):
                 raise PermissionDenied()
 
-    async def handle_exception(self, exc, action: Optional[str], request_id):
+    async def handle_exception(
+        self, exc: Exception, action: typing.Optional[str], request_id
+    ):
+        """
+        Handle any exception that occurs, by sending an appropriate message
+        """
         if isinstance(exc, APIException):
             await self.reply(
                 action=action,
-                error=self._format_exception(exc.detail),
+                errors=self._format_errors(exc.detail),
                 status=exc.status_code,
                 request_id=request_id
             )
@@ -187,14 +194,16 @@ class AsyncAPIConsumer(AsyncJsonWebsocketConsumer, metaclass=APIConsumerMetaclas
 
         await self.handle_action(action, request_id=request_id, **content)
 
-    async def get_action_name(self, content: Dict, **kwargs) -> typing.Tuple[typing.Optional[str], typing.Dict]:
+    async def get_action_name(
+        self, content: typing.Dict, **kwargs
+    ) -> typing.Tuple[typing.Optional[str], typing.Dict]:
         """
         Retrieves the action name from the json message
         Returns a tuple of the action name and the arguments that is passed to the action
         Override this method if you
         """
-        action = content.pop("action", None)
-        return  (action, content)
+        action = content.pop("action")
+        return (action, content)
 
     async def reply(
         self,
@@ -240,7 +249,8 @@ class AsyncAPIConsumer(AsyncJsonWebsocketConsumer, metaclass=APIConsumerMetaclas
         for task in self.detached_tasks:
             task.cancel()
             await self.handle_detached_task_completion(task)
-        await super().websocket_connect(message)
+        await super().websocket_disconnect(message)
+
 
 class DjangoViewAsConsumer(AsyncAPIConsumer):
     view = None
@@ -259,7 +269,7 @@ class DjangoViewAsConsumer(AsyncAPIConsumer):
             content, status = await self.call_view(action=action, **kwargs)
 
             await self.reply(
-                action=action, data=content, status=status, request_id=request_id
+                action=action, request_id=request_id, data=content, status=status
             )
         except Exception as exc:
             await self.handle_exception(exc, action=action, request_id=request_id)
@@ -267,7 +277,8 @@ class DjangoViewAsConsumer(AsyncAPIConsumer):
     @database_sync_to_async
     def call_view(self, action: str, **kwargs):
         request = request_from_scope(self.scope)
-        args, view_kwargs = self.get_view_args(action, **kwargs)
+
+        args, view_kwargs = self.get_view_args(action=action, **kwargs)
 
         request.method = self.actions[action]
         request.POST = json.dumps(kwargs.get("data", {}))
@@ -306,11 +317,11 @@ class DjangoViewAsConsumer(AsyncAPIConsumer):
         return response_content, status
 
     def get_view_args(self, action: str, **kwargs):
-        return[], kwargs.get("parameters", {})
+        return [], kwargs.get("parameters", {})
 
 def view_as_consumer(
     wrapped_view: typing.Callable[[HttpRequest], HttpResponse],
-    mapped_actions: typing.Optional[typing.Dict[str, str]] = None
+    mapped_actions: typing.Optional[typing.Dict[str, str]] = None,
 ) -> DjangoViewAsConsumer:
     """
     Wrap a django View to be used over a json ws connection.

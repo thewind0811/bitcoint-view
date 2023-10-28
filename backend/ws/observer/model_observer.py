@@ -12,7 +12,7 @@ from django.db import transaction
 from django.db.models import Model
 from django.db.models.signals import post_init, post_save, post_delete
 
-from backend.ws.observer.base_observer import BaseObserver
+from ws.observer.base_observer import BaseObserver
 
 
 class Action(Enum):

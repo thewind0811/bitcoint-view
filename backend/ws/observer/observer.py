@@ -5,7 +5,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.dispatch import Signal
 
-from backend.ws.observer.base_observer import BaseObserver
+from ws.observer.base_observer import BaseObserver
 
 
 class ObServer(BaseObserver):

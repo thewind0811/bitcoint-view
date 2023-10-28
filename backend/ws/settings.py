@@ -4,7 +4,7 @@ from rest_framework.settings import perform_import
 
 DEFAULTS = {
     "DEFAULT_PAGE_SIZE": 25,
-    "DEFAULT_PERMISSION_CLASSES": ("djangochannelsrestframework.permissions.AllowAny",),
+    "DEFAULT_PERMISSION_CLASSES": ("ws.permissions.AllowAny",),
     "DEFAULT_PAGINATION_CLASS": None,
     "PAGE_SIZE": None,
 }

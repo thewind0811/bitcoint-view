@@ -3,7 +3,7 @@ from typing import Any, Dict
 from channels.consumer import AsyncConsumer
 from rest_framework.permissions import BasePermission as DRFBasePermission
 
-from backend.ws.scope_utils import request_from_scope, ensure_async
+from ws.scope_utils import request_from_scope, ensure_async
 
 
 class OperationHolderMixin:

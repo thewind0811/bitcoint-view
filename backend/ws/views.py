@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from backend.ws.models import Message
+from ws.models import Message
 
 
 class MessageSendAPIView(APIView):

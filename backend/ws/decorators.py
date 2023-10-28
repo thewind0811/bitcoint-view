@@ -6,7 +6,7 @@ from channels.db import database_sync_to_async
 from django.conf import settings
 from django.db import transaction
 
-from consumers import AsyncAPIConsumer
+from ws.consumers import AsyncAPIConsumer
 
 
 def action(atomic: Optional[bool] = None, detached: Optional[bool] = None, **kwargs):

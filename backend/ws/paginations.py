@@ -4,7 +4,7 @@ from typing import Union, Dict, Optional, List, Any
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.utils.serializer_helpers import ReturnList, ReturnDict
 
-from backend.ws.settings import api_settings
+from ws.settings import api_settings
 
 
 def _positive_int(integer_string, strict=False, cutoff=None):

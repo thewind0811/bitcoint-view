@@ -4,8 +4,8 @@ from typing import Tuple, Optional, Any, Union
 from rest_framework import status
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
 
-from backend.ws.decorators import action
-from backend.ws.settings import api_settings
+from ws.decorators import action
+from ws.settings import api_settings
 
 
 class CreateModelMixin:
@@ -92,9 +92,9 @@ class ListModelMixin:
                 #! consumers.py
                 from .models import User
                 from .serializers import UserSerializer
-                from backend.ws import permissions
-                from backend.ws.generics import GenericAsyncAPIConsumer
-                from backend.ws.mixins import ListModelMixin
+                from ws import permissions
+                from ws.generics import GenericAsyncAPIConsumer
+                from ws.mixins import ListModelMixin
 
                 class LiveConsumer(ListModelMixin, GenericAsyncAPIConsumer):
                     queryset = User.objects.all()
@@ -153,9 +153,9 @@ class RetrieveModelMixin:
                 #! consumers.py
                 from .models import User
                 from .serializers import UserSerializer
-                from backend.ws import permissions
-                from backend.ws.generics import GenericAsyncAPIConsumer
-                from backend.ws.mixins import RetrieveModelMixin
+                from ws import permissions
+                from ws.generics import GenericAsyncAPIConsumer
+                from ws.mixins import RetrieveModelMixin
 
                 class LiveConsumer(RetrieveModelMixin, GenericAsyncAPIConsumer):
                     queryset = User.objects.all()
@@ -209,9 +209,9 @@ class UpdateModelMixin:
                 #! consumers.py
                 from .models import User
                 from .serializers import UserSerializer
-                from backend.ws import permissions
-                from backend.ws.generics import GenericAsyncAPIConsumer
-                from backend.ws.mixins import UpdateModelMixin
+                from ws import permissions
+                from ws.generics import GenericAsyncAPIConsumer
+                from ws.mixins import UpdateModelMixin
 
                 class LiveConsumer(UpdateModelMixin, GenericAsyncAPIConsumer):
                     queryset = User.objects.all()
@@ -280,9 +280,9 @@ class PatchModelMixin:
                 #! consumers.py
                 from .models import User
                 from .serializers import UserSerializer
-                from backend.ws import permissions
-                from backend.ws.generics import GenericAsyncAPIConsumer
-                from backend.ws.mixins import PatchModelMixin
+                from ws import permissions
+                from ws.generics import GenericAsyncAPIConsumer
+                from ws.mixins import PatchModelMixin
 
                 class LiveConsumer(PatchModelMixin, GenericAsyncAPIConsumer):
                     queryset = User.objects.all()
@@ -351,9 +351,9 @@ class DeleteModelMixin:
                 #! consumers.py
                 from .models import User
                 from .serializers import UserSerializer
-                from backend.ws import permissions
-                from backend.ws.generics import GenericAsyncAPIConsumer
-                from backend.ws.mixins import DeleteModelMixin
+                from ws import permissions
+                from ws.generics import GenericAsyncAPIConsumer
+                from ws.mixins import DeleteModelMixin
 
                 class LiveConsumer(DeleteModelMixin, GenericAsyncAPIConsumer):
                     queryset = User.objects.all()

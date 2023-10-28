@@ -2,8 +2,8 @@ import hashlib
 from copy import deepcopy
 from typing import Optional, Any, Dict, Iterable, Generator, Callable
 
-from backend.ws.consumers import AsyncAPIConsumer
-from backend.ws.observer.utils import ObjPartial
+from ws.consumers import AsyncAPIConsumer
+from ws.observer.utils import ObjPartial
 
 
 class BaseObserver:

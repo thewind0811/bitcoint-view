@@ -3,8 +3,9 @@ from typing import Type, Dict, Any
 from django.db.models import QuerySet, Model
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
+from rest_framework.serializers import Serializer
 
-from backend.ws.consumers import AsyncAPIConsumer
+from ws.consumers import AsyncAPIConsumer
 
 
 class GenericAsyncAPIConsumer(AsyncAPIConsumer):
@@ -57,7 +58,6 @@ class GenericAsyncAPIConsumer(AsyncAPIConsumer):
         Returns:
             Queryset attribute.
         """
-
         assert self.queryset is not None, (
             "'%s' should either include a `queryset` attribute, "
             "or override the `get_queryset()` method." % self.__class__.__name__
@@ -91,10 +91,10 @@ class GenericAsyncAPIConsumer(AsyncAPIConsumer):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
         assert lookup_url_kwarg in kwargs, (
-                "Expected view %s to be called with a URL keyword argument "
-                'named "%s". Fix your URL conf, or set the `.lookup_field` '
-                "attribute on the view correctly."
-                % (self.__class__.__name__, lookup_url_kwarg)
+            "Expected view %s to be called with a URL keyword argument "
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            "attribute on the view correctly."
+            % (self.__class__.__name__, lookup_url_kwarg)
         )
 
         filter_kwargs = {self.lookup_field: kwargs[lookup_url_kwarg]}
@@ -104,7 +104,7 @@ class GenericAsyncAPIConsumer(AsyncAPIConsumer):
 
         return  obj
 
-    def get_serializer(self, action_kwargs: Dict = None, *args, **kwargs ):
+    def get_serializer(self, action_kwargs: Dict = None, *args, **kwargs) -> Serializer:
         """
         Return the serializer instance that should be used for validating and
         deserializing input, and for serializing output.
@@ -119,10 +119,12 @@ class GenericAsyncAPIConsumer(AsyncAPIConsumer):
 
         """
         serializer_class = self.get_serializer_class(**action_kwargs)
+
         kwargs["context"] = self.get_serializer_context(**action_kwargs)
+
         return serializer_class(*args, **kwargs)
 
-    def get_serializer_class(self, *args, **kwargs) -> Type[serializers]:
+    def get_serializer_class(self, **kwargs) -> Type[Serializer]:
         """
         Return the class to use for the serializer.
         Defaults to using `self.serializer_class`.
@@ -139,9 +141,10 @@ class GenericAsyncAPIConsumer(AsyncAPIConsumer):
             Model serializer class.
         """
         assert self.serializer_class is not None, (
-                "'%s' should either include a `serializer_class` attribute, "
-                "or override the `get_serializer_class()` method." % self.__class__.__name__
+            "'%s' should either include a `serializer_class` attribute, "
+            "or override the `get_serializer_class()` method." % self.__class__.__name__
         )
+
         return self.serializer_class
 
     def get_serializer_context(self, **kwargs) -> Dict[str, Any]:
@@ -156,7 +159,7 @@ class GenericAsyncAPIConsumer(AsyncAPIConsumer):
         """
         return {"scope": self.scope, "consumer": self}
 
-    def filter_queryset(self, queryset: QuerySet, **kwargs: Any) -> QuerySet:
+    def filter_queryset(self, queryset: QuerySet, **kwargs) -> QuerySet:
         """
         Given a queryset, filter it with whichever filter backend is in use.
 
