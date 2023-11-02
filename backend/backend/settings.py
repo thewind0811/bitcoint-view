@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'posts',
+    'crypto',
     'channels',
     'ws'
 ]
@@ -79,7 +80,7 @@ CHANNEL_LAYERS={
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+            'hosts': ['redis://localhost:6379'],
         },
     },
 }
